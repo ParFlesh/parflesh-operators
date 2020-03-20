@@ -1,0 +1,224 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: |-
+      [
+        {
+          "apiVersion": "sonarr.parflesh.github.io/v1alpha1",
+          "kind": "Sonarr",
+          "metadata": {
+            "name": "example-sonarr"
+          },
+          "spec": {}
+        }
+      ]
+    capabilities: Basic Install
+  name: sonarr-operator.v0.0.1
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: Sonarr is the Schema for the sonarrs API
+      displayName: Sonarr
+      kind: Sonarr
+      name: sonarrs.sonarr.parflesh.github.io
+      resources:
+      - kind: Deployment
+        name: sonarr-operator
+        version: v1
+      - kind: Service
+        name: sonarr-operator
+        version: v1
+      specDescriptors:
+      - description: Additional Volumes to be mounted in Sonarr container
+        displayName: Additional Volumes
+        path: additionalVolumes
+      - description: Sonarr Config Volume mounted to /config
+        displayName: Config Volume
+        path: configVolume
+      - description: Stop automatic updates when hash for image tag changes
+        displayName: Disable Image Updates
+        path: disableUpdates
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:booleanSwitch
+      - description: 'Container image capable of running Sonarr (Default: quay.io/parflesh/sonarr:latest)'
+        displayName: Container Image
+        path: image
+      - description: Image pull secret for private container images
+        displayName: Image Pull Secret
+        path: imagePullSecret
+        x-descriptors:
+        - urn:alm:descriptor:io.kubernetes:Secret
+      - description: Priority Class Name
+        displayName: Priority Class Name
+        path: priorityClassName
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:text
+      - description: Run as Group Id
+        displayName: GroupID
+        path: runAsGroup
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:number
+      - description: Run as User Id
+        displayName: User ID
+        path: runAsUser
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:number
+      - description: 'Time to wait between checking resource status (Default: 1m)'
+        displayName: Watch Frequency
+        path: watchFrequency
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:text
+      statusDescriptors:
+      - description: Desired Image hash for container
+        displayName: Image
+        path: image
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:text
+      - description: Phase
+        displayName: Phase
+        path: phase
+        x-descriptors:
+        - urn:alm:descriptor:io.kubernetes.phase
+      - description: Reason
+        displayName: Reason
+        path: reason
+        x-descriptors:
+        - urn:alm:descriptor:io.kubernetes.phase:reason
+      version: v1alpha1
+  description: Placeholder description
+  displayName: Sonarr Operator
+  install:
+    spec:
+      deployments:
+      - name: sonarr-operator
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              name: sonarr-operator
+          strategy: {}
+          template:
+            metadata:
+              labels:
+                name: sonarr-operator
+            spec:
+              containers:
+              - command:
+                - sonarr-operator
+                env:
+                - name: WATCH_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.annotations['olm.targetNamespaces']
+                - name: POD_NAME
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.name
+                - name: OPERATOR_NAME
+                  value: sonarr-operator
+                image: quay.io/parflesh/sonarr-operator:0.0.1
+                imagePullPolicy: Always
+                name: sonarr-operator
+                resources: {}
+              serviceAccountName: sonarr-operator
+      permissions:
+      - rules:
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          - services
+          - services/finalizers
+          - endpoints
+          - persistentvolumeclaims
+          - events
+          - configmaps
+          - secrets
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - apps
+          resources:
+          - deployments
+          - daemonsets
+          - replicasets
+          - statefulsets
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - monitoring.coreos.com
+          resources:
+          - servicemonitors
+          verbs:
+          - get
+          - create
+        - apiGroups:
+          - apps
+          resourceNames:
+          - sonarr-operator
+          resources:
+          - deployments/finalizers
+          verbs:
+          - update
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          verbs:
+          - get
+        - apiGroups:
+          - apps
+          resources:
+          - replicasets
+          - deployments
+          verbs:
+          - get
+        - apiGroups:
+          - sonarr.parflesh.github.io
+          resources:
+          - '*'
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        serviceAccountName: sonarr-operator
+    strategy: deployment
+  installModes:
+  - supported: true
+    type: OwnNamespace
+  - supported: true
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - Sonarr
+  maintainers:
+  - email: parflesh@gmail.com
+    name: ParFlesh
+  maturity: alpha
+  provider:
+    name: ParFlesh
+    url: https://github.com/ParFlesh
+  replaces: sonarr-operator.v0.0.0
+  version: 0.0.1
