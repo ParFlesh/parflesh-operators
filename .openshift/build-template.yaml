@@ -1,0 +1,56 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+labels:
+  template: sonarr-build-template
+metadata:
+  annotations:
+  name: sonarr-build
+objects:
+  - kind: BuildConfig
+    apiVersion: build.openshift.io/v1
+    metadata:
+      name: ${BASE_NAME}-${ID}
+      labels:
+        build: ${BASE_NAME}
+    spec:
+      output:
+        to:
+          kind: ${BUILD_OUTPUT_KIND}
+          name: "${BUILD_OUTPUT_NAME}:${VERSION}"
+        pushSecret:
+          name: ${BUILD_OUTPUT_SECRET}
+      resources: {}
+      successfulBuildsHistoryLimit: 5
+      failedBuildsHistoryLimit: 5
+      strategy:
+        type: Docker
+      source:
+        type: Git
+        git:
+          uri: ${GIT_SOURCE_URL}
+          ref: ${GIT_SOURCE_REF}
+      triggers:
+        - type: ConfigChange
+      runPolicy: Serial
+parameters:
+  - name: BUILD_OUTPUT_NAME
+    required: true
+    value: "quay.io/parflesh/parflesh-operators"
+  - name: BUILD_OUTPUT_KIND
+    required: true
+    value: DockerImage
+  - name: BUILD_OUTPUT_SECRET
+    required: true
+    value: image-push-secret
+  - name: GIT_SOURCE_URL
+    required: true
+    value: "https://github.com/ParFlesh/parflesh-operators.git"
+  - name: GIT_SOURCE_REF
+  - name: BASE_NAME
+    required: true
+    value: parflesh-operators
+  - name: ID
+    required: true
+    value: "latest"
+  - name: VERSION
+    value: "latest"
