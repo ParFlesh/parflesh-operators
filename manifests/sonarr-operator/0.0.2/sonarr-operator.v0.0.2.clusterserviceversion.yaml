@@ -10,11 +10,20 @@ metadata:
           "metadata": {
             "name": "example-sonarr"
           },
-          "spec": {}
+          "spec": {
+            "fsGroup": 1000,
+            "volumes": [
+              {
+                "claim": "example-sonarr",
+                "mountPath": "/config",
+                "name": "config"
+              }
+            ]
+          }
         }
       ]
     capabilities: Basic Install
-  name: sonarr-operator.v0.0.1
+  name: sonarr-operator.v0.0.2
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -161,7 +170,7 @@ spec:
                       fieldPath: metadata.name
                 - name: OPERATOR_NAME
                   value: sonarr-operator
-                image: quay.io/parflesh/sonarr-operator:0.0.1
+                image: quay.io/parflesh/sonarr-operator:0.0.2
                 imagePullPolicy: Always
                 name: sonarr-operator
                 resources: {}
@@ -262,5 +271,5 @@ spec:
   provider:
     name: ParFlesh
     url: https://github.com/ParFlesh
-  replaces: sonarr-operator.v0.0.0
-  version: 0.0.1
+  replaces: sonarr-operator.v0.0.1
+  version: 0.0.2
