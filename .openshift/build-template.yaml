@@ -1,10 +1,10 @@
 apiVersion: template.openshift.io/v1
 kind: Template
 labels:
-  template: sonarr-build-template
+  template: parflesh-operator-build-template
 metadata:
   annotations:
-  name: sonarr-build
+  name: parflesh-operator
 objects:
   - kind: BuildConfig
     apiVersion: build.openshift.io/v1
